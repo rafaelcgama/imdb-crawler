@@ -1,6 +1,8 @@
 # Load libraries
 import requests
 from bs4 import BeautifulSoup
+import copy
+import json
 
 # Creates a list to store the movies
 db_test = []
@@ -102,7 +104,7 @@ def get_data(num_movies):
                 genre = genre.text.strip().replace(" ", "").split(",")
                 movie['genre'] = genre
 
-                Certification
+                # Certification
                 certification = block.find('span', class_="certificate")
                 certification = certification.text
                 movie['certification'] = certification
@@ -113,7 +115,6 @@ def get_data(num_movies):
                 # Get director information
                 director_name = list(crew)[-5].text
                 director_link = crew[-5].attrs.get('href')
-                director_id = director_link.split("/")[2]
                 director_country = get_birth_country(director_link)
                 director_gender = get_gender(director_name)
                 director_dict = {'name': director_name,
@@ -131,16 +132,6 @@ def get_data(num_movies):
     return db_test
 
 
-# Retrieve data from imdb.com
-imdb_original = get_data(9000)
-
-
-# Create a deepcopy of the original dataset
-import copy
-
-imdb_clean = copy.deepcopy(imdb_original)
-
-
 # Eliminate all movie entries where the birth country of the director is not composed of just letters
 def clean_country(my_list):
     size = len(list(my_list))
@@ -150,33 +141,51 @@ def clean_country(my_list):
             del my_list[(size - 1) - count]
 
 
+# Eliminate all movie entries where the birth country of the director is not 'Male'or 'Female'
+def clean_gender(my_list):
+    size = len(list(my_list))
+    for count, movie in enumerate(my_list[::-1]):
+        gender = movie['director']['gender']
+        if gender == 'NA':
+            del my_list[(size - 1) - count]
+
+
 # Convert the year attribute for all movies to an int
 def fix_year(my_list):
     import re
 
-    for movie in my_list[::-1]:
-        year = movie['year']
-        year = re.sub('[^0-9]', '', year)
-        if isinstance(int(year), int):
-            movie['year'] = int(year)
+    if type(my_list['year']) != int:
+        for movie in my_list[::-1]:
+            year = movie['year']
+            year = re.sub('[^0-9]', '', year)
+            if isinstance(int(year), int):
+                movie['year'] = int(year)
 
     return my_list
 
 
-# Apply the fixes to the data
-clean_country(imdb_clean)
-dataset_clean = fix_year(imdb_clean)
 
 
-# Creates a JSON file
-import json
+if __name__ == '__main__':
+    # Retrieve data from imdb.com
+    imdb_original = get_data(9000)
 
-with open('imdb_genre.json', 'w') as file:
-    json.dump(imdb_clean, file)
+    # Create a deepcopy of the original dataset
+    imdb_clean = copy.deepcopy(imdb_original)
 
 
-#Create reference data for main.py
-IMDB_DATA = dataset_clean
+    # Apply the fixes to the data
+    clean_country(imdb_clean)
+    clean_gender(imdb_clean)
+    dataset_clean = fix_year(imdb_clean)
 
-# Instead of using this object to create the web service a new .py file was created with the content of the JSON file
-# so the main.py doesn't rely in running this whole script
+    # Creates a JSON file
+
+    with open('imdb_genre.json', 'w') as file:
+        json.dump(imdb_clean, file)
+
+    # Create reference data for main.py
+    IMDB_DATA = dataset_clean
+
+    # Instead of using this object to create the web service a new .py file was created with the content of the JSON file
+    # so the main.py doesn't rely in running this whole script
