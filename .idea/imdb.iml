@@ -3,7 +3,7 @@
   <component name="FacetManager">
     <facet type="google-appengine-python" name="Google App Engine (Python)">
       <configuration>
-        <option name="rootFolder" value="C:\Users\Rafael\Desktop\Data Analysis\imdb" />
+        <option name="rootFolder" value="C:\Users\Rafael\Documents\GitHub\IMDB-Crawler" />
         <option name="sdkFolder" value="$USER_HOME$/Downloads/google-cloud-sdk/platform/google_appengine" />
         <option name="templatesFolder" value="" />
         <option name="oauth2" value="false" />
