@@ -41,7 +41,7 @@ Because of our inability to use a DataFrame, the format selected to build the da
  'cast': ['Daisy Ridley', 'John Boyega', 'Oscar Isaac', 'Domhnall Gleeson']}
 ```
 
-After the website was scrapped and the dataset was populated with 5084 movies, we created a google web service that stored the dataset in the cloud and used it to calculate the statistics that were requested.
+After the website was scrapped and the dataset was populated with 5083 movies, we created a google web service that stored the dataset in the cloud and used it to calculate the statistics that were requested.
 
 ## Answers:
 
