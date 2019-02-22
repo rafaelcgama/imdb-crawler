@@ -20,7 +20,7 @@ The first challenge was to develop a scrapping tool that would enable us to coll
 * **metascore**: Metascore rating
 * **votes**: Number of people that rated the movie
 * **box_office**: US box office performance
-* **duration**: length of the movie
+* **duration**: Length of the movie
 * **genre**: List of film genres that describe the movie
 * **certification**: Motion picture content rating system label
 * **director**: Contains name, gender and birth place of the movie director
@@ -42,7 +42,7 @@ Because of our inability to use a DataFrame, the format selected to build the da
  'cast': ['Daisy Ridley', 'John Boyega', 'Oscar Isaac', 'Domhnall Gleeson']}
 ```
 
-After the website was scrapped and the dataset was populated with 5084 movies, we created a google web service that stored the dataset in the cloud and used it to calculate the statistics that were requested.
+After the website was scrapped and the dataset was populated with 5435 movies, we created a google web service that stored the dataset in the cloud and used it to calculate the statistics that were requested.
 
 ## Answers:
 
@@ -55,9 +55,9 @@ url = 'https://imdb-232317.appspot.com/'
 response = requests.get(url)
 imdb = json.loads(response.text)
 
-# Removes all titles that were passed on to the server without a 'genre' because of encoding in the title name
+# Removes all titles that may have been passed to the web service without a 'genre' because of potential encoding issues in the title name
 
-# Eliminate all movie entries that has no genre
+# Eliminate all movie entries that have no genre
 def clean_genre(my_list):
     size = len(list(my_list))
     for count, movie in enumerate(my_list[::-1]):
@@ -65,7 +65,7 @@ def clean_genre(my_list):
             del my_list[(size - 1) - count]
 
             
-clean_genre(imdb_clean)            
+clean_genre(imdb)            
 ```
 
 
