@@ -1,11 +1,13 @@
 # Load libraries
-import requests
-from bs4 import BeautifulSoup
+import re
 import copy
 import json
+import requests
+from bs4 import BeautifulSoup
+
 
 # Creates a list to store the movies
-db_test = []
+imdb_data = []
 
 
 # Function to get birth country of a person
@@ -127,9 +129,10 @@ def get_data(num_movies):
                 cast = [a.text for a in list(crew)[-4:]]
                 movie['cast'] = cast
 
-                db_test.append(movie)
+                # Add movie to the list
+                imdb_data.append(movie)
 
-    return db_test
+    return imdb_data
 
 
 # Eliminate all movie entries where the birth country of the director is not composed of just letters
@@ -149,14 +152,20 @@ def clean_gender(my_list):
         if gender == 'NA':
             del my_list[(size - 1) - count]
 
+# Eliminate all movie entries that has no genre
+def clean_genre(my_list):
+    size = len(list(my_list))
+    for count, movie in enumerate(my_list[::-1]):
+        if movie.get('genre', 'empty') == 'empty':
+            del my_list[(size - 1) - count]
+
 
 # Convert the year attribute for all movies to an int
-def fix_year(my_list):
-    import re
-
-    if type(my_list['year']) != int:
-        for movie in my_list[::-1]:
-            year = movie['year']
+def clean_year(my_list):
+    size = len(list(my_list))
+    for movie in my_list[::-1]:
+        year = movie['year']
+        if type(year) == str:
             year = re.sub('[^0-9]', '', year)
             if isinstance(int(year), int):
                 movie['year'] = int(year)
@@ -167,8 +176,10 @@ def fix_year(my_list):
 
 
 if __name__ == '__main__':
+
     # Retrieve data from imdb.com
-    imdb_original = get_data(9000)
+    imdb_original = get_data(10000)
+
 
     # Create a deepcopy of the original dataset
     imdb_clean = copy.deepcopy(imdb_original)
@@ -177,15 +188,17 @@ if __name__ == '__main__':
     # Apply the fixes to the data
     clean_country(imdb_clean)
     clean_gender(imdb_clean)
-    dataset_clean = fix_year(imdb_clean)
+    clean_genre(imdb_clean)
+    imdb_clean = clean_year(imdb_clean)
+
 
     # Creates a JSON file
-
-    with open('imdb_genre.json', 'w') as file:
+    with open('imdb.json', 'w') as file:
         json.dump(imdb_clean, file)
 
+
     # Create reference data for main.py
-    IMDB_DATA = dataset_clean
+    IMDB_DATA = imdb_clean
 
     # Instead of using this object to create the web service a new .py file was created with the content of the JSON file
     # so the main.py doesn't rely in running this whole script

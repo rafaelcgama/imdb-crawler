@@ -30,48 +30,71 @@ Because of our inability to use a DataFrame, the format selected to build the da
 
 ```python
 {'name': 'Star Wars: Episode VII - The Force Awakens',
- 'year': '(2015)',
+ 'year': 2015,
  'rating': 8.0,
  'metascore': 81,
  'votes': 771951,
  'box_office': 936662225,
+ 'genre': ['Action', 'Adventure', 'Fantasy'],
  'duration': 136,
  'certification': 'PG-13',
  'director': {'name': 'J.J. Abrams', 'birth_country': 'USA', 'gender': 'Male'},
  'cast': ['Daisy Ridley', 'John Boyega', 'Oscar Isaac', 'Domhnall Gleeson']}
 ```
 
-After the website was scrapped and the dataset was populated with 5083 movies, we created a google web service that stored the dataset in the cloud and used it to calculate the statistics that were requested.
+After the website was scrapped and the dataset was populated with 5084 movies, we created a google web service that stored the dataset in the cloud and used it to calculate the statistics that were requested.
 
 ## Answers:
 
 ### Load dataset from web service
 ```python
-import requests
 import json
+import requests
 
 url = 'https://imdb-232317.appspot.com/'
 response = requests.get(url)
 imdb = json.loads(response.text)
+
+# Removes all titles that were passed on to the server without a 'genre' because of encoding in the title name
+
+# Eliminate all movie entries that has no genre
+def clean_genre(my_list):
+    size = len(list(my_list))
+    for count, movie in enumerate(my_list[::-1]):
+        if movie.get('genre', 'empty') == 'empty':
+            del my_list[(size - 1) - count]
+
+            
+clean_genre(imdb_clean)            
 ```
+
+
+
+
 
 ### 1. What is the probability that the director of a movie is Female?
 ```python
 # Count the 
-def count_director_attr(mylist):
+def count_director_attr(mylist, attr, attr_feat):
+    '''
+    Count a attribute from the director dict
+    mylist = int (movie list)
+    attr = str (attribute of the movie)
+    attr_feat = str (feature of the attribute)
+    '''  
     count = 0
     for movie in imdb:
-        if movie['director']['gender'] == 'Female':
+        if movie['director'][attr] == attr_feat:
             count += 1
     
     return count
 
-fem_count = count_director_attr(imdb)
+fem_count = count_director_attr(imdb, 'gender', 'Female')
 fem_prob = fem_count / len(imdb)
 
 print ("{0:.2%}".format(fem_prob))
 ```
-**10.15%**
+**10.47%**
 
 ### 2. What is the average duration of the movies in the list?
 
@@ -81,7 +104,7 @@ def avg_duration(mylist):
     for movie in imdb:
        total_minutes += movie['duration']
     
-    return total_minutes / len(imdb)
+    return total_minutes / len(mylist)
 
 print (round(avg_duration(imdb)), 'minutes')
 ```
@@ -100,29 +123,29 @@ def genre_hist(mylist):
     return genres
 
 genre_hist_all = genre_hist(imdb)
-print(genre_hist_all)
+genre_hist_all
 ```
 ```python
-{'Action': 1123,
- 'Adventure': 928,
- 'Fantasy': 393,
- 'Sci-Fi': 351,
- 'Drama': 2898,
- 'Romance': 1007,
- 'Animation': 200,
- 'Crime': 944,
- 'Family': 305,
- 'Thriller': 751,
- 'Comedy': 1984,
- 'Biography': 401,
- 'Mystery': 438,
- 'Horror': 454,
- 'Sport': 134,
- 'War': 99,
- 'Music': 194,
- 'History': 177,
- 'Musical': 59,
- 'Western': 38,
+{'Action': 1148,
+ 'Adventure': 947,
+ 'Fantasy': 407,
+ 'Sci-Fi': 364,
+ 'Drama': 3189,
+ 'Romance': 1102,
+ 'Animation': 205,
+ 'Crime': 1005,
+ 'Family': 308,
+ 'Musical': 66,
+ 'Thriller': 785,
+ 'Comedy': 2107,
+ 'Biography': 435,
+ 'Mystery': 453,
+ 'Horror': 466,
+ 'Sport': 141,
+ 'War': 112,
+ 'Music': 215,
+ 'History': 193,
+ 'Western': 39,
  'Film-Noir': 5}
 ```
 
@@ -141,7 +164,7 @@ imdb_8 = rating_above(imdb, 8)
 
 print("There are", len(imdb_8), 'movies with rating above 8')
 ```
-187 movies with rating above 8
+There are 196 movies with rating above 8
 
 ```python
 # Create hist for filtered data
@@ -150,25 +173,26 @@ print(genre_hist_8)
 ```
 ```python
 {'Action': 25,
- 'Adventure': 46,
+ 'Adventure': 47,
  'Fantasy': 16,
  'Sci-Fi': 18,
- 'Crime': 34,
- 'Drama': 133,
- 'Thriller': 31,
+ 'Crime': 37,
+ 'Drama': 139,
+ 'Thriller': 33,
  'Animation': 15,
- 'Comedy': 29,
- 'Romance': 18,
- 'Mystery': 20,
+ 'Comedy': 31,
+ 'Romance': 22,
+ 'Mystery': 21,
  'Family': 5,
- 'War': 11,
+ 'War': 12,
  'Biography': 22,
- 'Music': 4,
+ 'Music': 5,
  'History': 10,
  'Western': 6,
  'Sport': 4,
  'Horror': 4,
- 'Musical': 1}
+ 'Musical': 1,
+ 'Film-Noir': 1}
 ```
 Please note that the same movie may be counted in my than one genre so that's the reason there are more than 187 counts in the histogram.
 
@@ -189,27 +213,27 @@ for genre in new_hist:
 ```
 
 ```python
-Action: 2.23%
+Action: 2.18%
 Adventure: 4.96%
-Fantasy: 4.07%
-Sci-Fi: 5.13%
-Drama: 4.59%
-Romance: 1.79%
-Animation: 7.50%
-Crime: 3.60%
-Family: 1.64%
-Thriller: 4.13%
-Comedy: 1.46%
-Biography: 5.49%
-Mystery: 4.57%
-Horror: 0.88%
-Sport: 2.99%
-War: 11.11%
-Music: 2.06%
-History: 5.65%
-Musical: 1.69%
-Western: 15.79%
-Film-Noir: 0.00%
+Fantasy: 3.93%
+Sci-Fi: 4.95%
+Drama: 4.36%
+Romance: 2.00%
+Animation: 7.32%
+Crime: 3.68%
+Family: 1.62%
+Musical: 1.52%
+Thriller: 4.20%
+Comedy: 1.47%
+Biography: 5.06%
+Mystery: 4.64%
+Horror: 0.86%
+Sport: 2.84%
+War: 10.71%
+Music: 2.33%
+History: 5.18%
+Western: 15.38%
+Film-Noir: 20.00%
 ```
 
 #### 4. What is the probability of a movie to have a rating above 8 considering that the director is not american?
@@ -227,4 +251,4 @@ result = len(imdb_8_not_USA) / len(imdb)
 
 print("{0:.2%}".format(result))
 ```
-**1.89%**
+**1.91%**
