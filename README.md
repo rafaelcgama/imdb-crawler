@@ -51,7 +51,7 @@ After the website was scrapped and the dataset was populated with 5435 movies, w
 import json
 import requests
 
-url = 'https://imdb-232317.appspot.com/'
+url = 'https://tests-232421.appspot.com/'
 response = requests.get(url)
 imdb = json.loads(response.text)
 
