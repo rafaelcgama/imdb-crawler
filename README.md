@@ -74,7 +74,6 @@ clean_genre(imdb)
 
 ### 1. What is the probability that the director of a movie is Female?
 ```python
-# Count the 
 def count_director_attr(mylist, attr, attr_feat):
     '''
     Count a attribute from the director dict
